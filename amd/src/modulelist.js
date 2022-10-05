@@ -1,25 +1,26 @@
 // Put this file in path/to/plugin/amd/src
 // You can call it anything you like
 
-define(['jquery', 'block_custommodules/utils'],
-    function ($, Utils) {
+define(['jquery', 'block_custommodules/utils', 'mod_pmbquiz/dlg-confirm'],
+    function ($, Utils, dlgconfirm) {
         var init = function () {
-            $('.delete').on('click', function (event) {
-                event.preventDefault();
-                $btn = $(this);
-                var moduleid = $btn.data('moduleid');
-                var title = "¿Realmente quieres eliminar este módulo?";
-                var text = "¡No será posible recuperar este módulo después de eliminarlo!";
-                Utils.confirmMessage(title, text)
-                    .then(function (result) {
-                        if (result.value) {
-                            excluirModulo(moduleid);
-                            $btn.parent().parent().remove();
-                        }
-                    });
-            });
+
         }
-        function excluirModulo(moduleid) {
+        $('.delete').on('click', function (event) {
+            event.preventDefault();
+            $btn = $(this);
+            var moduleid = $btn.data('moduleid');
+            var title = "Deseja remover este módulo ?";
+            var message = "Não será possivel recupera-lo";
+            dlgconfirm.confirm(title, message, excluirModulo, cancel, [moduleid, $btn]);
+        });
+        function cancel(params) {
+
+        }
+        function excluirModulo(args) {
+            const moduleid = args[0];
+            const $btn = args[1];
+
             if (moduleid === undefined || moduleid === "" || moduleid === null) return;
 
             try {
@@ -30,11 +31,9 @@ define(['jquery', 'block_custommodules/utils'],
                     console.log(data);
                     var title = 'Excluído!';
                     var text = 'Módulo ' + moduleid + ' excluído.';
-                    Utils.successMessage(title, text)
-                        .then(function () {
-                            var $hidden = $("#hd-url");
-                            window.location.replace($hidden.val());
-                        });
+                    $btn.parent().parent().remove();
+                    var $hidden = $("#hd-url");
+                    window.location.replace($hidden.val());
                 });
             } catch (e) {
                 console.log(e.message);
